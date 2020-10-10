@@ -48,6 +48,12 @@ singleuser:
         mountPath: /dev/fuse
       - name: shm-volume
         mountPath: /dev/shm
+    type: "static"
+    static:
+      pvcName: "efs-persist"
+      subPath: 'home/{username}'
+  extraEnv:
+    CHOWN_HOME: 'yes'
   uid: 0
   fsGid: 0
   cmd: "start-singleuser.sh"

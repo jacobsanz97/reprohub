@@ -21,13 +21,13 @@ RUN git clone https://github.com/sylabs/singularity.git \
     && make \
     && make install
 
-FROM jupyter/datascience-notebook:612aa5710bf9
+FROM jupyter/datascience-notebook:4a112c0f11eb
 
 USER root
 COPY --from=builder /usr/local/singularity /usr/local/singularity
 ENV PATH="/usr/local/singularity/bin:$PATH"
 RUN apt-get update && apt-get install -y ca-certificates libseccomp2 \
-   squashfs-tools fuse s3fs \
+   squashfs-tools fuse s3fs git-annex rclone \
     && rm -rf /tmp/*
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
@@ -39,7 +39,7 @@ RUN wget https://github.com/kahing/goofys/releases/download/v0.24.0/goofys \
 
 USER $NB_USER
 
-RUN conda install --yes git-annex rclone && conda clean -tipsy
+# RUN conda install --yes git-annex rclone && conda clean -tipsy
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
   reproschema nda-tools datalad datalad-container datalad-neuroimaging
 RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/master.zip
