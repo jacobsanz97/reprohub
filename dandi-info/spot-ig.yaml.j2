@@ -19,6 +19,7 @@ spec:
     kops.k8s.io/instancegroup: spot-ig
     on-demand: "false"
   role: Node
+  rootVolumeSize: {{ node_volume_size }}
   subnets:
   - us-east-2a
   - us-east-2b
