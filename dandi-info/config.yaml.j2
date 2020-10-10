@@ -12,13 +12,44 @@ proxy:
       # Which ports should use SSL
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+hub:
+  extraConfig: |
+    from kubernetes import client
+    def modify_pod_hook(spawner, pod):
+        pod.spec.containers[0].security_context = client.V1SecurityContext(
+            privileged=True,
+            capabilities=client.V1Capabilities(
+                add=['CAP_SYS_ADMIN']
+            )
+        )
+        return pod
+    c.KubeSpawner.modify_pod_hook = modify_pod_hook
 singleuser:
   defaultUrl: "/lab"
   image:
     name: {{ singleuser_image_repo }}
     tag: {{ singleuser_image_tag }}
+  memory:
+    limit: 8G
+    guarantee: 2G
+  cpu:
+    limit: 2.0
+    guarantee: 0.5
   storage:
-    type: none
+    extraVolumes:
+      - name: fuse
+        hostPath:
+          path: /dev/fuse
+      - name: shm-volume
+        emptyDir:
+          medium: Memory
+    extraVolumeMounts:
+      - name: fuse
+        mountPath: /dev/fuse
+      - name: shm-volume
+        mountPath: /dev/shm
+  uid: 0
+  fsGid: 0
   cmd: "start-singleuser.sh"
   lifecycleHooks:
     postStart:
@@ -27,5 +58,5 @@ singleuser:
           - "sh"
           - "-c"
           - >
-            gitpuller https://github.com/dandi/example-notebooks master dandi-notebooks;
-            chown -R jovyan:users dandi-notebooks
+            gitpuller https://github.com/ABCD-ReproNim/exercises main exercises;
+            chown -R jovyan:users exercises

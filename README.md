@@ -2,8 +2,10 @@
 
 https://hub.dandiarchive.org
 
-This has been based on [this blog post](https://mast-labs.stsci.io/2019/02/zero-to-jupyterhub-with-ansible)
-and [this corresponding repo](https://github.com/spacetelescope/z2jh-aws-ansible).
+This has been based on:
+- [this blog post](https://mast-labs.stsci.io/2019/02/zero-to-jupyterhub-with-ansible)
+ and [this corresponding repo](https://github.com/spacetelescope/z2jh-aws-ansible).
+- 
 
 ### Steps to deploy DANDI hub
 
@@ -13,7 +15,12 @@ and [this corresponding repo](https://github.com/spacetelescope/z2jh-aws-ansible
   proxy offloading to this certificate.
 2. Create the GitHub App id/token. 
    We have it done through a bot github user account (dandibot).
-3. Setup AWS CI instance with authorized roles. 
+3. Setup AWS CI instance with authorized roles. (see the blog post for details)
+   - AmazonEC2FullAccess
+   - IAMFullAccess
+   - AmazonS3FullAccess
+   - AmazonVPCFullAccess
+   - AmazonElasticFileSystemFullAccess
 4. Install ansible locally and create a password for ansible to encrypt some of 
    the ansible variables.
    `openssl rand -hex 32 > ansible_password`
@@ -22,14 +29,33 @@ and [this corresponding repo](https://github.com/spacetelescope/z2jh-aws-ansible
    `ansible-vault encrypt_string "string_to_encrypt"`
 5. Update the variables and some yaml files.
    Specifically this involves: `group_vars/all`, `config.yaml.j2`, `github connect)
+6. create policy
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeAutoScalingInstances",
+                "autoscaling:DescribeLaunchConfigurations",
+                "autoscaling:SetDesiredCapacity",
+                "autoscaling:TerminateInstanceInAutoScalingGroup"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+7. update z2jh.yaml to reflect new policy arn.
 
 #### Deployment steps
-1. ansible-playbook -i hosts z2jh.yml -v --vault-password-file ansible_password
-2. ansible-playbook -i hosts apply_github_auth.yml -v --vault-password-file ansible_password
+1. `ansible-playbook -i hosts z2jh.yml -v --vault-password-file ansible_password`
+2. `ansible-playbook -i hosts apply_github_auth.yml -v --vault-password-file ansible_password`
 
-The deployment steps can be combined.
 
-To use this repo for dandi deployment:
+To use this repo for reprohub deployment:
 
 ```bash
 cd z2jh-aws-ansible
@@ -38,4 +64,8 @@ ansible-playbook -i hosts z2jh.yml -v --vault-password-file ansible_password
 ansible-playbook -i hosts apply_github_auth.yml -v --vault-password-file ansible_password
 ```
 
-This will be automated using travis soon.
+To teardown
+
+```bash
+ansible-playbook -i hosts teardown.yml -v --vault-password-file ansible_password -t all-fixtures
+```

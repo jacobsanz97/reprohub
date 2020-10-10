@@ -155,7 +155,7 @@ spec:
             - --skip-nodes-with-local-storage=false
             - --expander=least-waste
             - --nodes=1:5:nodes.{{ namespace }}.k8s.local
-            - --nodes=1:10:spot-ig.{{ namespace }}.k8s.local
+            - --nodes=1:50:spot-ig.{{ namespace }}.k8s.local
           volumeMounts:
             - name: ssl-certs
               mountPath: /etc/ssl/certs/ca-certificates.crt
