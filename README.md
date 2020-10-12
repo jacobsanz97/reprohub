@@ -1,13 +1,13 @@
-# DANDI Jupyter Hub
+# ABCD-Repronim Jupyter Hub
 
-https://hub.dandiarchive.org
+https://abcd.dandiarchive.org
 
 This has been based on:
 - [this blog post](https://mast-labs.stsci.io/2019/02/zero-to-jupyterhub-with-ansible)
  and [this corresponding repo](https://github.com/spacetelescope/z2jh-aws-ansible).
-- 
+- [this blog post on autoscaling and spot pricing](https://www.replex.io/blog/the-ultimate-guide-to-deploying-kubernetes-cluster-on-aws-ec2-spot-instances-using-kops-and-eks#walkthrough)
 
-### Steps to deploy DANDI hub
+### Steps to deploy the hub
 
 #### Manual steps
 1. Create an https certificate using AWS cert manager.
@@ -21,6 +21,7 @@ This has been based on:
    - AmazonS3FullAccess
    - AmazonVPCFullAccess
    - AmazonElasticFileSystemFullAccess
+   and then add the public dns name to the hosts file
 4. Install ansible locally and create a password for ansible to encrypt some of 
    the ansible variables.
    `openssl rand -hex 32 > ansible_password`

@@ -270,26 +270,6 @@
             - '"No rolling-update required." not in kops_ru_result.stdout'
         when: nodes_yaml.stat.exists == False
 
-      - name: check if autoscaler yaml file exists
-        stat:
-          path: /home/ec2-user/cluster-autoscaler-multi-asg.yaml
-        register: autoscaler_yaml
-
-      - block:
-        - name: Attach policy to nodes
-          command: aws iam attach-role-policy --policy-arn arn:aws:iam::278212569472:policy/ig-policy --role-name nodes.{{ namespace }}.k8s.local
-
-        - name: Create autoscale config file
-          template:
-            src: cluster-autoscaler-multi-asg.yaml.j2
-            dest: /home/ec2-user/cluster-autoscaler-multi-asg.yaml
-
-        - name: Apply autoscaling to cluster
-          command: kubectl apply -f /home/ec2-user/cluster-autoscaler-multi-asg.yaml
-          args:
-            chdir: /home/ec2-user
-        when: autoscaler_yaml.stat.exists == False
-
       ## Check and configure persistent volume ##
       - name: Check for persistent volume
         command: kubectl get pv
@@ -384,6 +364,26 @@
 
         when: helmver_result.stdout is undefined or
           helmver_result.stdout.find('Server') == -1
+
+      - name: check if autoscaler yaml file exists
+        stat:
+          path: /home/ec2-user/cluster-autoscaler-multi-asg.yaml
+        register: autoscaler_yaml
+
+      - block:
+        - name: Attach policy to nodes
+          command: aws iam attach-role-policy --policy-arn arn:aws:iam::278212569472:policy/ig-policy --role-name nodes.{{ namespace }}.k8s.local
+
+        - name: Create autoscale config file
+          template:
+            src: cluster-autoscaler-multi-asg.yaml.j2
+            dest: /home/ec2-user/cluster-autoscaler-multi-asg.yaml
+
+        - name: Apply autoscaling to cluster
+          command: kubectl apply -f /home/ec2-user/cluster-autoscaler-multi-asg.yaml
+          args:
+            chdir: /home/ec2-user
+        when: autoscaler_yaml.stat.exists == False
 
       - name: Add spot termination
         shell: helm install stable/k8s-spot-termination-handler --namespace kube-system
