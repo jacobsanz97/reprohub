@@ -43,15 +43,17 @@ singleuser:
       - name: shm-volume
         emptyDir:
           medium: Memory
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-claim
     extraVolumeMounts:
       - name: fuse
         mountPath: /dev/fuse
       - name: shm-volume
         mountPath: /dev/shm
-    type: "static"
-    static:
-      pvcName: "efs-persist"
-      subPath: 'home/{username}'
+      - name: persistent-storage
+        mountPath: '/home'
+        subPath: '{username}'
   extraEnv:
     CHOWN_HOME: 'yes'
   uid: 0

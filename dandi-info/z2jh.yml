@@ -270,7 +270,7 @@
             - '"No rolling-update required." not in kops_ru_result.stdout'
         when: nodes_yaml.stat.exists == False
 
-      - name: check if nodes yaml file exists
+      - name: check if autoscaler yaml file exists
         stat:
           path: /home/ec2-user/cluster-autoscaler-multi-asg.yaml
         register: autoscaler_yaml
@@ -301,6 +301,17 @@
           template:
             src: pv_efs.yaml.j2
             dest: /home/ec2-user/pv_efs.yaml
+
+        - name: Install CSI EFS driver
+          command: kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.0"
+
+        - name: Create storageclass.yaml config file
+          template:
+            src: storageclass.yaml.j2
+            dest: /home/ec2-user/storageclass.yaml
+
+        - name: Apply storageclass config file
+          command: kubectl apply -f /home/ec2-user/storageclass.yaml
 
         - name: Apply kube pv config
           command: kubectl --namespace={{ namespace }} apply -f /home/ec2-user/pv_efs.yaml
@@ -428,4 +439,4 @@
         command: kubectl --namespace={{ namespace }} describe svc proxy-public
         register: pp_log
 
-      - debug: msg="Navigate browser to {{ pp_log.stdout_lines[11] }} to begin using JupyterHub!"
+      - debug: msg="Navigate browser to {{ pp_log.stdout_lines[14] }} to begin using JupyterHub!"
