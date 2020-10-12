@@ -10,6 +10,8 @@ This has been based on:
 ### Steps to deploy the hub
 
 #### Manual steps
+0. Make sure to do all the operations in the same AWS zone that you will use in 
+  step 5 in the `group_vars/all` file.
 1. Create an https certificate using AWS cert manager.
   For attaching this to load balancers, it's free, and JupyterHub allows 
   proxy offloading to this certificate.
@@ -22,6 +24,7 @@ This has been based on:
    - AmazonVPCFullAccess
    - AmazonElasticFileSystemFullAccess
    and then add the public dns name to the hosts file
+   also install git in the CI instance.
 4. Install ansible locally and create a password for ansible to encrypt some of 
    the ansible variables.
    `openssl rand -hex 32 > ansible_password`
@@ -29,7 +32,10 @@ This has been based on:
    certificate ID using the following form. 
    `ansible-vault encrypt_string "string_to_encrypt"`
 5. Update the variables and some yaml files.
-   Specifically this involves: `group_vars/all`, `config.yaml.j2`, `github connect)
+   Specifically this involves: `group_vars/all`, `config.yaml.j2`, 
+   `apply_github_auth`)
+   Also note that the namespace has to be unique across any JH
+   instances created with this setup. 
 6. create policy
 ```
 {
