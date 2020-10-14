@@ -32,8 +32,7 @@ This has been based on:
    certificate ID using the following form. 
    `ansible-vault encrypt_string "string_to_encrypt"`
 5. Update the variables and some yaml files.
-   Specifically this involves: `group_vars/all`, `config.yaml.j2`, 
-   `apply_github_auth`)
+   Specifically this involves: `group_vars/all`, `config.yaml.j2`)
    Also note that the namespace has to be unique across any JH
    instances created with this setup. 
 6. create policy
@@ -59,7 +58,6 @@ This has been based on:
 
 #### Deployment steps
 1. `ansible-playbook -i hosts z2jh.yml -v --vault-password-file ansible_password`
-2. `ansible-playbook -i hosts apply_github_auth.yml -v --vault-password-file ansible_password`
 
 
 To use this repo for reprohub deployment:
@@ -68,7 +66,6 @@ To use this repo for reprohub deployment:
 cd z2jh-aws-ansible
 cp -r ../dandi-info/. .
 ansible-playbook -i hosts z2jh.yml -v --vault-password-file ansible_password
-ansible-playbook -i hosts apply_github_auth.yml -v --vault-password-file ansible_password
 ```
 
 To teardown
