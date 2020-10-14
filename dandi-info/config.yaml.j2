@@ -19,11 +19,56 @@ hub:
         pod.spec.containers[0].security_context = client.V1SecurityContext(
             privileged=True,
             capabilities=client.V1Capabilities(
-                add=['CAP_SYS_ADMIN']
+                add=['SYS_ADMIN']
             )
         )
         return pod
     c.KubeSpawner.modify_pod_hook = modify_pod_hook
+    from oauthenticator.github import GitHubOAuthenticator
+    c.JupyterHub.authenticator_class = GitHubOAuthenticator
+
+auth:
+  type: github
+  admin:
+    access: false
+    users:
+      - "repronimservices"
+  whitelist:
+    users:
+      - "satra"
+      - "yarikoptic"
+      - "dnkennedy"
+      - "tsalo"
+      - "jessicabartley"
+      - "djarecka"
+      - "jbpoline"
+      - "angielaird"
+      - "dmoracze"
+      - "jdkent"
+      - "kristinarapuano"
+      - "llevitis"
+      - "richford"
+  github:
+    clientId: "{{ github_client_id }}"
+    clientSecret: "{{ github_client_secret }}"
+    callbackUrl: "{{ ingress }}/hub/oauth_callback"
+  scopes:
+    - "read:user"
+
+scheduling:
+  userScheduler:
+    enabled: true
+  podPriority:
+    enabled: true
+  userPlaceholder:
+    enabled: true
+    replicas: 3
+
+cull:
+  enabled: true
+  timeout: 3600
+  every: 300
+
 singleuser:
   defaultUrl: "/lab"
   image:
@@ -31,10 +76,10 @@ singleuser:
     tag: {{ singleuser_image_tag }}
   memory:
     limit: 8G
-    guarantee: 2G
+    guarantee: 1G
   cpu:
-    limit: 2.0
-    guarantee: 0.5
+    limit: 2
+    guarantee: 0.2
   storage:
     extraVolumes:
       - name: fuse

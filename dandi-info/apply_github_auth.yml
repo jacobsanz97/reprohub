@@ -16,17 +16,18 @@
             auth:
               type: github
               admin:
-                access: true
+                access: false
+                users:
+                  - "repronimservices"
+              whitelist:
                 users:
                   - "satra"
                   - "yarikoptic"
+                  - "dnkennedy"
                   - "tsalo"
                   - "jessicabartley"
-              whitelist:
-                users:
                   - "djarecka"
                   - "jbpoline"
-                  - "dnkennedy"
                   - "angielaird"
                   - "dmoracze"
                   - "jdkent"
