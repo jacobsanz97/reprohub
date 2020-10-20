@@ -13,20 +13,17 @@ proxy:
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
 hub:
-  extraConfig: |
-    from kubernetes import client
-    def modify_pod_hook(spawner, pod):
-        pod.spec.containers[0].security_context = client.V1SecurityContext(
-            privileged=True,
-            capabilities=client.V1Capabilities(
-                add=['SYS_ADMIN']
-            )
-        )
-        return pod
-    c.KubeSpawner.modify_pod_hook = modify_pod_hook
-    from oauthenticator.github import GitHubOAuthenticator
-    c.JupyterHub.authenticator_class = GitHubOAuthenticator
-
+  extraConfig:
+    myConfig: |
+      from kubernetes import client
+      def modify_pod_hook(spawner, pod):
+          pod.spec.containers[0].security_context = client.V1SecurityContext(
+              privileged=True
+          )
+          return pod
+      c.KubeSpawner.modify_pod_hook = modify_pod_hook
+      from oauthenticator.github import GitHubOAuthenticator
+      c.JupyterHub.authenticator_class = GitHubOAuthenticator
 auth:
   type: github
   admin:
@@ -76,11 +73,12 @@ singleuser:
     tag: {{ singleuser_image_tag }}
   memory:
     limit: 8G
-    guarantee: 1G
+    guarantee: 4G
   cpu:
     limit: 2
-    guarantee: 0.2
+    guarantee: 1
   storage:
+    capacity: 1Gi
     extraVolumes:
       - name: fuse
         hostPath:

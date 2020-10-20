@@ -372,7 +372,7 @@
 
       - block:
         - name: Attach policy to nodes
-          command: aws iam attach-role-policy --policy-arn arn:aws:iam::495904529719:policy/ig-policy --role-name nodes.{{ namespace }}.k8s.local
+          command: aws iam attach-role-policy --policy-arn arn:aws:iam::785038733776:policy/ig-policy --role-name nodes.{{ namespace }}.k8s.local
 
         - name: Create autoscale config file
           template:
