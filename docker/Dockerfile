@@ -27,7 +27,7 @@ USER root
 COPY --from=builder /usr/local/singularity /usr/local/singularity
 ENV PATH="/usr/local/singularity/bin:$PATH"
 RUN apt-get update && apt-get install -y ca-certificates libseccomp2 \
-   squashfs-tools fuse s3fs git-annex rclone \
+   squashfs-tools fuse s3fs git-annex rclone httpfs2 \
     && rm -rf /tmp/*
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
@@ -43,3 +43,6 @@ USER $NB_USER
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
   reproschema nda-tools datalad datalad-container datalad-neuroimaging
 RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/master.zip
+RUN pip install --no-cache-dir itkwidgets==0.32.0 jupytext nilearn plotly
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets@0.32.0
+RUN jupyter lab build

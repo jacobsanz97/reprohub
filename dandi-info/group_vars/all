@@ -7,7 +7,7 @@ node_volume_size: 20
 node_count: 1
 jupyterhub_chart_version: 0.9.1
 singleuser_image_repo: satra/abcd-repronim
-singleuser_image_tag: 5f98b55c
+singleuser_image_tag: 55e6db5b
 helm_chart_repo_name: jupyterhub
 helm_chart_repo_url: https://jupyterhub.github.io/helm-chart/
 github_client_id: !vault |
