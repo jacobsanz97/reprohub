@@ -1,6 +1,6 @@
 FROM golang:1.15.2 as builder
 
-ARG SINGULARITY_COMMITISH="master"
+ARG SINGULARITY_COMMITISH="v3.6.4"
 
 WORKDIR $GOPATH/src/github.com/sylabs
 RUN apt-get update && apt-get install -y \
@@ -21,13 +21,13 @@ RUN git clone https://github.com/sylabs/singularity.git \
     && make \
     && make install
 
-FROM jupyter/datascience-notebook:4a112c0f11eb
+FROM jupyter/datascience-notebook:712576e0e96b
 
 USER root
 COPY --from=builder /usr/local/singularity /usr/local/singularity
 ENV PATH="/usr/local/singularity/bin:$PATH"
 RUN apt-get update && apt-get install -y ca-certificates libseccomp2 \
-   squashfs-tools fuse s3fs git-annex rclone httpfs2 \
+   squashfs-tools fuse s3fs \
     && rm -rf /tmp/*
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
@@ -39,10 +39,13 @@ RUN wget https://github.com/kahing/goofys/releases/download/v0.24.0/goofys \
 
 USER $NB_USER
 
-# RUN conda install --yes git-annex rclone && conda clean -tipsy
-RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
-  reproschema nda-tools datalad datalad-container datalad-neuroimaging
-RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/master.zip
+RUN conda install --yes git-annex rclone && conda clean -tipsy
+RUN wget https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0.6/git-annex-remote-rclone \
+  && chmod +x git-annex-remote-rclone && mv git-annex-remote-rclone /opt/conda/bin
 RUN pip install --no-cache-dir itkwidgets==0.32.0 jupytext nilearn plotly
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets@0.32.0
 RUN jupyter lab build
+RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
+  reproschema nda-tools datalad datalad-container datalad-neuroimaging
+RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/8081fcf6f108ec156bfa483dad7c6c7344a24216.zip
+RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/a4940e311a260ccc863091812d4a3e89912ff632.zip
