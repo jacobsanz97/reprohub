@@ -59,7 +59,7 @@ scheduling:
     enabled: true
   userPlaceholder:
     enabled: true
-    replicas: 3
+    replicas: 4
 
 cull:
   enabled: true
@@ -78,7 +78,7 @@ singleuser:
     limit: 2
     guarantee: 1
   storage:
-    capacity: 1Gi
+    type: none
     extraVolumes:
       - name: fuse
         hostPath:
@@ -95,12 +95,21 @@ singleuser:
       - name: shm-volume
         mountPath: /dev/shm
       - name: persistent-storage
-        mountPath: '/home'
-        subPath: '{username}'
-  extraEnv:
-    CHOWN_HOME: 'yes'
-  uid: 0
-  fsGid: 0
+        mountPath: '/home/jovyan'
+        subPath: 'home/{username}'
+  initContainers:
+    - name: nfs-fixer
+      image: alpine
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+      - name: persistent-storage
+        mountPath: /nfs
+        subPath: 'home/{username}'
+      command:
+      - sh
+      - -c
+      - (chmod 0775 /nfs; chown 1000:100 /nfs)  
   cmd: "start-singleuser.sh"
   lifecycleHooks:
     postStart:
