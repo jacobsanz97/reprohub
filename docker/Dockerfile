@@ -46,6 +46,6 @@ RUN pip install --no-cache-dir itkwidgets==0.32.0 jupytext nilearn plotly
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets@0.32.0
 RUN jupyter lab build
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
-  reproschema nda-tools datalad datalad-container datalad-neuroimaging
+  reproschema nda-tools datalad datalad-container datalad-neuroimaging pyontutils
 RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/8081fcf6f108ec156bfa483dad7c6c7344a24216.zip
 RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/a4940e311a260ccc863091812d4a3e89912ff632.zip
