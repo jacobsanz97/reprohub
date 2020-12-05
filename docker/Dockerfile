@@ -47,6 +47,6 @@ RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-mat
 RUN jupyter lab build
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
   reproschema nda-tools datalad datalad-container datalad-neuroimaging pyontutils \
-  datalad-osf
+  datalad-osf PyMARE
 RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/8081fcf6f108ec156bfa483dad7c6c7344a24216.zip
 RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/a4940e311a260ccc863091812d4a3e89912ff632.zip
