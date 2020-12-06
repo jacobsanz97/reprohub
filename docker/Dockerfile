@@ -44,9 +44,12 @@ RUN wget https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0
   && chmod +x git-annex-remote-rclone && mv git-annex-remote-rclone /opt/conda/bin
 RUN pip install --no-cache-dir itkwidgets==0.32.0 jupytext nilearn plotly pyvista
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets@0.32.0
-RUN jupyter lab build
+RUN jupyter labextension install jupyterlab-plotly --no-build \
+  && jupyter labextension install plotlywidget --no-build
+RUN export NODE_OPTIONS=--max-old-space-size=4096 \
+  && jupyter lab build
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
   reproschema nda-tools datalad datalad-container datalad-neuroimaging pyontutils \
   datalad-osf
-RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/8081fcf6f108ec156bfa483dad7c6c7344a24216.zip
-RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/a4940e311a260ccc863091812d4a3e89912ff632.zip
+RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/d062f6f39315d6b82c287796e1c4c70ff4df6317.zip
+RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/f104933e7faf01ed3da7e3201cea469f9ddd87fe.zip
