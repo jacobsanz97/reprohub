@@ -31,11 +31,11 @@ RUN apt-get update && apt-get install -y ca-certificates libseccomp2 \
    squashfs-tools fuse s3fs netbase less parallel \
     && rm -rf /tmp/*
 
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
+RUN curl --silent --show-error "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
   -o "awscliv2.zip" && unzip awscliv2.zip \
   && ./aws/install && rm -rf ./aws awscliv2.zip
 
-RUN wget https://github.com/kahing/goofys/releases/download/v0.24.0/goofys \
+RUN wget --quiet https://github.com/kahing/goofys/releases/download/v0.24.0/goofys \
   && chmod +x goofys && mv goofys /usr/local/bin
 
 USER $NB_USER
@@ -52,6 +52,6 @@ RUN wget https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0
   && chmod +x git-annex-remote-rclone && mv git-annex-remote-rclone /opt/conda/bin
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
   reproschema nda-tools datalad datalad-container datalad-neuroimaging pyontutils \
-  datalad-osf PyMARE git+https://github.com/ReproNim/reproman.git@v0.4.1
+  datalad-osf PyMARE git+https://github.com/ReproNim/reproman.git@v0.4.1 gower
 RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/21cfe9f1a1c52a1a930619c5bb0f7018f81b68ab.zip
 RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/f104933e7faf01ed3da7e3201cea469f9ddd87fe.zip
