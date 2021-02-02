@@ -27,7 +27,8 @@ USER root
 COPY --from=builder /usr/local/singularity /usr/local/singularity
 ENV PATH="/usr/local/singularity/bin:$PATH"
 RUN apt-get update && apt-get install -y ca-certificates libseccomp2 \
-   squashfs-tools fuse s3fs netbase less \
+   squashfs-tools fuse s3fs  \
+   squashfs-tools fuse s3fs netbase less parallel \
     && rm -rf /tmp/*
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
@@ -51,6 +52,6 @@ RUN wget https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0
   && chmod +x git-annex-remote-rclone && mv git-annex-remote-rclone /opt/conda/bin
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
   reproschema nda-tools datalad-container datalad-neuroimaging pyontutils \
-  datalad-osf
+  datalad-osf git+https://github.com/ReproNim/reproman.git@v0.4.0
 RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/d062f6f39315d6b82c287796e1c4c70ff4df6317.zip
 RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/f104933e7faf01ed3da7e3201cea469f9ddd87fe.zip
