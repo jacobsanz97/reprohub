@@ -51,7 +51,7 @@ RUN conda install --yes datalad rclone && conda clean -tipsy
 RUN wget https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0.6/git-annex-remote-rclone \
   && chmod +x git-annex-remote-rclone && mv git-annex-remote-rclone /opt/conda/bin
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
-  reproschema nda-tools datalad-container datalad-neuroimaging pyontutils \
-  datalad-osf git+https://github.com/ReproNim/reproman.git@v0.4.0
-RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/d062f6f39315d6b82c287796e1c4c70ff4df6317.zip
+  reproschema nda-tools datalad datalad-container datalad-neuroimaging pyontutils \
+  datalad-osf PyMARE git+https://github.com/ReproNim/reproman.git@v0.4.1
+RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/21cfe9f1a1c52a1a930619c5bb0f7018f81b68ab.zip
 RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/f104933e7faf01ed3da7e3201cea469f9ddd87fe.zip
