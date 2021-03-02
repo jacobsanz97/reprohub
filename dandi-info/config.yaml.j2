@@ -24,17 +24,14 @@ hub:
       c.KubeSpawner.modify_pod_hook = modify_pod_hook
       from oauthenticator.github import GitHubOAuthenticator
       c.JupyterHub.authenticator_class = GitHubOAuthenticator
-auth:
-  type: github
-  admin:
-    access: false
-    users:
+  config:
+    Authenticator:
+      admin_users:
       - "repronimservices"
       - "satra"
       - "dnkennedy"
       - "tsalo"
-  whitelist:
-    users:
+      allowed_users:
       - "yarikoptic"
       - "jessicabartley"
       - "djarecka"
@@ -45,12 +42,16 @@ auth:
       - "kristinarapuano"
       - "llevitis"
       - "richford"
-  github:
-    clientId: "{{ github_client_id }}"
-    clientSecret: "{{ github_client_secret }}"
-    callbackUrl: "{{ ingress }}/hub/oauth_callback"
-  scopes:
-    - "read:user"
+    GitHubOAuthenticator:
+      client_id: "{{ github_client_id }}"
+      client_secret: "{{ github_client_secret }}"
+      oauth_callback_url: "{{ ingress }}/hub/oauth_callback"
+    JupyterHub:
+      admin_access: false
+      authenticator_class: github
+    OAuthenticator:
+      scope:
+      - read:user
 
 scheduling:
   userScheduler:
@@ -59,7 +60,7 @@ scheduling:
     enabled: true
   userPlaceholder:
     enabled: true
-    replicas: 4
+    replicas: 2
 
 cull:
   enabled: true
@@ -72,11 +73,11 @@ singleuser:
     name: {{ singleuser_image_repo }}
     tag: {{ singleuser_image_tag }}
   memory:
-    limit: 8G
-    guarantee: 4G
+    limit: 16G
+    guarantee: 16G
   cpu:
-    limit: 2
-    guarantee: 1
+    limit: 12
+    guarantee: 4
   storage:
     type: none
     extraVolumes:
@@ -97,6 +98,9 @@ singleuser:
       - name: persistent-storage
         mountPath: '/home/jovyan'
         subPath: 'home/{username}'
+      - name: persistent-storage
+        mountPath: '/shared'
+        subPath: 'shared'
   initContainers:
     - name: nfs-fixer
       image: alpine
@@ -106,10 +110,17 @@ singleuser:
       - name: persistent-storage
         mountPath: /nfs
         subPath: 'home/{username}'
+      - name: persistent-storage
+        mountPath: /shared
+        subPath: 'shared'
       command:
       - sh
       - -c
-      - (chmod 0775 /nfs; chown 1000:100 /nfs)  
+      - >
+        chmod 0775 /nfs;
+        chown 1000:100 /nfs;
+        chmod 0775 /shared;
+        chown 1000:100 /shared
   cmd: "start-singleuser.sh"
   lifecycleHooks:
     postStart:

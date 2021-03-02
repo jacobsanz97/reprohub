@@ -1,6 +1,6 @@
 FROM golang:1.15.2 as builder
 
-ARG SINGULARITY_COMMITISH="v3.7.0"
+ARG SINGULARITY_COMMITISH="v3.7.1"
 
 WORKDIR $GOPATH/src/github.com/sylabs
 RUN apt-get update && apt-get install -y \
@@ -21,13 +21,12 @@ RUN git clone https://github.com/sylabs/singularity.git \
     && make \
     && make install
 
-FROM jupyter/datascience-notebook:399cbb986c6b
+FROM jupyter/datascience-notebook:016833b15ceb
 
 USER root
 COPY --from=builder /usr/local/singularity /usr/local/singularity
 ENV PATH="/usr/local/singularity/bin:$PATH"
 RUN apt-get update && apt-get install -y ca-certificates libseccomp2 \
-   squashfs-tools fuse s3fs  \
    squashfs-tools fuse s3fs netbase less parallel \
     && rm -rf /tmp/*
 
@@ -40,18 +39,20 @@ RUN wget --quiet https://github.com/kahing/goofys/releases/download/v0.24.0/goof
 
 USER $NB_USER
 
-RUN pip install --no-cache-dir itkwidgets==0.32.0 jupytext nilearn plotly pyvista
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib jupyterlab-datawidgets itkwidgets@0.32.0
-RUN jupyter labextension install jupyterlab-plotly --no-build \
-  && jupyter labextension install plotlywidget --no-build
-RUN export NODE_OPTIONS=--max-old-space-size=4096 \
-  && jupyter lab build
+RUN pip install --no-cache-dir itkwidgets==0.32.0 jupytext plotly pyvista
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager \
+  jupyter-matplotlib jupyterlab-datawidgets itkwidgets@0.32.0 jupyterlab-plotly \
+  plotlywidget jupyter-threejs --no-build \
+  && export NODE_OPTIONS=--max-old-space-size=4096 \
+  && jupyter lab build && rm -rf /tmp/*
 
 RUN conda install --yes datalad rclone && conda clean -tipsy
-RUN wget https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0.6/git-annex-remote-rclone \
+RUN wget --quiet https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0.6/git-annex-remote-rclone \
   && chmod +x git-annex-remote-rclone && mv git-annex-remote-rclone /opt/conda/bin
 RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
   reproschema nda-tools datalad datalad-container datalad-neuroimaging pyontutils \
-  datalad-osf PyMARE git+https://github.com/ReproNim/reproman.git@v0.4.1 gower
-RUN pip install --no-cache-dir --upgrade https://github.com/datalad/datalad/archive/21cfe9f1a1c52a1a930619c5bb0f7018f81b68ab.zip
-RUN pip install --no-cache-dir https://github.com/ReproNim/neurodocker/archive/f104933e7faf01ed3da7e3201cea469f9ddd87fe.zip
+  datalad-osf PyMARE git+https://github.com/ReproNim/reproman.git@v0.4.1 gower \
+  nilearn zarr
+RUN pip install --no-cache-dir \
+  git+https://github.com/nipype/pydra.git \
+  git+https://github.com/ReproNim/neurodocker.git@f104933
