@@ -56,3 +56,8 @@ RUN pip install --no-cache-dir nbgitpuller nibabel dipy pybids pynidm pydra-ml \
 RUN pip install --no-cache-dir \
   git+https://github.com/nipype/pydra.git \
   git+https://github.com/ReproNim/neurodocker.git@f104933
+
+USER root
+RUN apt-get update && apt-get install -y tmux \
+    && rm -rf /tmp/*
+USER $NB_USER
