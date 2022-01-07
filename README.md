@@ -1,6 +1,6 @@
-# ABCD-Repronim Jupyter Hub
+# ABCD-ReproNim Jupyter Hub
 
-https://abcd.dandiarchive.org
+https://abcd.repronim.org
 
 This has been based on:
 - [this blog post](https://mast-labs.stsci.io/2019/02/zero-to-jupyterhub-with-ansible)
@@ -18,13 +18,16 @@ This has been based on:
 2. Create the GitHub App id/token. 
    We have it done through a bot github user account (dandibot).
 3. Setup AWS CI instance with authorized roles. (see the blog post for details)
-   - AmazonEC2FullAccess
-   - IAMFullAccess
-   - AmazonS3FullAccess
-   - AmazonVPCFullAccess
-   - AmazonElasticFileSystemFullAccess
+    - AmazonEC2FullAccess
+    - AmazonSQSFullAccess
+    - IAMFullAccess
+    - AmazonS3FullAccess
+    - AmazonVPCFullAccess
+    - AmazonElasticFileSystemFullAccess
+    - AmazonRoute53FullAccess
+    - AmazonEventBridgeFullAccess
    and then add the public dns name to the hosts file
-   also install git in the CI instance.
+   **also install git in the CI instance.**
 4. Install ansible locally and create a password for ansible to encrypt some of 
    the ansible variables.
    `openssl rand -hex 32 > ansible_password`
@@ -46,15 +49,17 @@ This has been based on:
                 "autoscaling:DescribeAutoScalingGroups",
                 "autoscaling:DescribeAutoScalingInstances",
                 "autoscaling:DescribeLaunchConfigurations",
+                "autoscaling:DescribeTags",
                 "autoscaling:SetDesiredCapacity",
-                "autoscaling:TerminateInstanceInAutoScalingGroup"
+                "autoscaling:TerminateInstanceInAutoScalingGroup",
+                "ec2:DescribeLaunchTemplateVersions"
             ],
             "Resource": "*"
         }
     ]
 }
 ```
-7. update z2jh.yaml to reflect new policy arn.
+7. update `z2jh.yaml` to reflect new policy arn.
 
 #### Deployment steps
 1. `ansible-playbook -i hosts z2jh.yml -v --vault-password-file ansible_password`
@@ -73,3 +78,29 @@ To teardown
 ```bash
 ansible-playbook -i hosts teardown.yml -v --vault-password-file ansible_password -t all-fixtures
 ```
+
+To remove kubernetes without removing shared EFS:
+```bash
+ansible-playbook -i hosts teardown.yml -v --vault-password-file ansible_password -t kubernetes
+```
+
+Notes: keeping EFS around 
+- Removing VPC mount targets does not work. Go to EFS, network, manage. Remove 
+  security groups for each mount target, and then remove each target.
+- Re-run the anisble teardown command.
+
+#### Files under dandi-info
+
+- `group_vars/all`: ansible file contains variables for various templates
+- `cluster-autoscaler-multi-asg.yaml.j2`: k8s cluster autoscaler spec
+- `config.yaml.j2`: z2jh jupyterhub configuration
+- `hosts`: ansible provides IP of control host
+- `nodes[1-3].yaml.j2`: k8s node specs for on demand nodes in multiple zones 
+- `pod.yaml.j2`: k8s pod for introspecting shared storage
+- `pv_efs.yaml.j2`: k8s persistent volume spec for EFS
+- `pvc_efs.yaml.j2`: k8s persistent volume claim for EFS
+- `spot-ig.yaml.j2`: k8s non-GPU spec for compute nodes
+- `spot-ig-gpu.yaml.j2`: k8s GPU spec for compute nodes
+- `storageclass.yaml.j2`: k8s EFS storageclass
+- `teardown.yml`: ansible file for tearing down the cluster
+- `z2jh.yml`: ansible file for starting up the cluster

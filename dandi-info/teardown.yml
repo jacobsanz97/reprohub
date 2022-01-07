@@ -25,17 +25,15 @@
         tags: always
 
       ## Idempotent delete helm release of JH
-      - name: Determine if Helm and Tiller are connected already
-        command: helm version --tiller-connection-timeout 30
+      - name: Determine if Helm is available
+        command: helm version
         failed_when: False
         changed_when: False
         register: helmver_result
-        async: 45
-        poll: 5
         tags: always
 
       - name: Determine if JH is currently installed.
-        command: helm status {{ namespace }}-jupyterhub
+        command: helm status --namespace {{ namespace }} {{ namespace }}-jupyterhub
         register: jh_installed_result
         failed_when: False
         changed_when: False
@@ -44,13 +42,13 @@
         # delete the Helm release. This deletes all resources that were created
         # by Helm for your JupyterHub deployment
       - name: Delete helm release
-        command: helm delete {{ namespace }}-jupyterhub --purge
+        command: helm delete {{ namespace }}-jupyterhub --namespace {{ namespace }}
         when: helmver_result.stdout is defined and not helmver_result.rc and not jh_installed_result.rc
         tags: always
 
       - name: check if nodes yaml file exists
         stat:
-          path: /home/ec2-user/cluster-autoscaler-multi-asg.yaml
+          path: /home/ec2-user/{{ namespace }}/cluster-autoscaler-multi-asg.yaml
         register: autoscaler_yaml
         tags: always
 
@@ -71,14 +69,23 @@
             path: "{{ item }}"
             state: absent
           with_items:
-            - /home/ec2-user/spot-ig.yaml
-            - /home/ec2-user/nodes.yaml
-            - /home/ec2-user/cluster-autoscaler-multi-asg.yaml
+            - /home/ec2-user/{{ namespace }}/spot-ig.yaml
+            - /home/ec2-user/{{ namespace }}/spot-ig-gpu.yaml
+            - /home/ec2-user/{{ namespace }}/pod.yaml
+            - /home/ec2-user/{{ namespace }}/nodes1.yaml
+            - /home/ec2-user/{{ namespace }}/nodes2.yaml
+            - /home/ec2-user/{{ namespace }}/nodes3.yaml
+            - /home/ec2-user/{{ namespace }}/cluster-autoscaler-multi-asg.yaml
         when: autoscaler_yaml.stat.exists == True
         tags:
           - never
           - kubernetes
           - all-fixtures
+
+      - name: Set kubectl context
+        command: kops export kubecfg --admin --name {{ namespace }}.k8s.local
+        ignore_errors: yes
+        tags: always
 
       - name: Check for kube namespace
         command: kubectl get namespace {{ namespace }}
