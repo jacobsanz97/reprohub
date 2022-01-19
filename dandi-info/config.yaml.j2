@@ -56,7 +56,7 @@ hub:
               else:
                   if resp.body:
                       resp_json = json.loads(resp.body.decode('utf8', 'replace'))
-                      if userdict["name"] in resp_json:
+                      if userdict["name"].lower() in resp_json:
                           return userdict
               return None
 
