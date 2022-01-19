@@ -40,31 +40,25 @@ hub:
               userdict = await super().authenticate(handler, data=data)
               if userdict is None:
                   return userdict
-              """
               req = HTTPRequest(
-                          f"https://api.dandiarchive.org/api/users/search/?username={userdict['name']}",
+                          "https://dl.dropbox.com/s/7dnpn3yg59ri6fc/users.json?dl=0",
                           method="GET",
                           headers={"Accept": "application/json",
                                    "User-Agent": "JupyterHub",
-                                   "Authorization": "token {{ danditoken }}"},
+                                   },
                           validate_cert=self.validate_server_cert,
                      )
               try:
                   client = AsyncHTTPClient()
                   resp = await client.fetch(req)
-                  # resp_json = await self.fetch(req, "checking users")
               except HTTPClientError:
                   return None
               else:
                   if resp.body:
                       resp_json = json.loads(resp.body.decode('utf8', 'replace'))
-                      for val in resp_json:
-                          if val["username"] == userdict["name"]:
-                              return userdict
+                      if userdict["name"] in resp_json:
+                          return userdict
               return None
-              """
-              return userdict
-
 
           async def pre_spawn_start(self, user, spawner):
               auth_state = await user.get_auth_state()
