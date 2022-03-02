@@ -40,7 +40,6 @@ RUN wget --quiet https://github.com/kahing/goofys/releases/download/v0.24.0/goof
 USER $NB_USER
 
 RUN conda install --yes datalad rclone 'h5py>3.3=mpi*' ipykernel zarr blosc \
-  && conda install --yes pytorch torchvision -c pytorch \
   && wget --quiet https://raw.githubusercontent.com/DanielDent/git-annex-remote-rclone/v0.6/git-annex-remote-rclone \
   && chmod +x git-annex-remote-rclone && mv git-annex-remote-rclone /opt/conda/bin \
   && pip install --no-cache-dir jupytext nbgitpuller datalad-container \
