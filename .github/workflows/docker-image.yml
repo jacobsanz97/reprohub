@@ -34,5 +34,5 @@ jobs:
         with:
           context: ./docker
           push: true
-          file: Dockerfile.gpu
+          file: ./docker/Dockerfile.gpu
           tags: repronim/abcd-repronim:latest-gpu
